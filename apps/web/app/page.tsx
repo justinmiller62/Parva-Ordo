@@ -1,29 +1,27 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { signOut, withAuth } from "@workos-inc/authkit-nextjs";
 import { getLessons, getMinistries, getParishById, lookupAppUser } from "@parvaordo/core";
+import { ROLE_LABELS } from "@parvaordo/shared";
+import { getAuthedUser, signOutAndRedirect } from "@/src/lib/auth";
 import { getBrand } from "@/src/lib/brand";
 
 export default async function HomePage() {
-  const { user } = await withAuth();
-  if (!user) redirect("/login");
+  const authed = await getAuthedUser();
+  if (!authed) redirect("/login");
 
   const brand = await getBrand();
-  const identity = await lookupAppUser(user.email);
+  const identity = await lookupAppUser(authed.email);
 
   const parishId = identity?.parishId ?? null;
   const parish = parishId ? await getParishById(parishId) : null;
   const ministries = parishId ? await getMinistries(parishId) : [];
   const lessons = parishId ? await getLessons(parishId) : [];
 
-  const displayName =
-    identity?.displayName ||
-    [user.firstName, user.lastName].filter(Boolean).join(" ") ||
-    user.email;
+  const displayName = identity?.displayName || authed.name || authed.email;
 
   async function handleSignOut() {
     "use server";
-    await signOut();
+    await signOutAndRedirect();
   }
 
   return (
@@ -49,10 +47,10 @@ export default async function HomePage() {
 
         {identity?.parishId ? (
           <>
-            <dl className="mt-6 grid grid-cols-2 gap-4 rounded-xl border border-navy/10 bg-cream/40 p-5 text-sm">
+            <dl className="mt-6 grid grid-cols-1 gap-4 rounded-xl border border-navy/10 bg-cream/40 p-5 text-sm sm:grid-cols-2">
               <div>
                 <dt className="font-semibold text-navy/60">Role</dt>
-                <dd className="mt-0.5 text-navy">{identity.role ?? "—"}</dd>
+                <dd className="mt-0.5 text-navy">{identity.role ? ROLE_LABELS[identity.role] : "—"}</dd>
               </div>
               <div>
                 <dt className="font-semibold text-navy/60">Parish</dt>
@@ -60,7 +58,7 @@ export default async function HomePage() {
               </div>
               <div className="col-span-2">
                 <dt className="font-semibold text-navy/60">Email</dt>
-                <dd className="mt-0.5 text-navy">{user.email}</dd>
+                <dd className="mt-0.5 text-navy">{authed.email}</dd>
               </div>
             </dl>
 
@@ -86,7 +84,11 @@ export default async function HomePage() {
               </h2>
               <ul className="mt-2 divide-y divide-navy/10 rounded-xl border border-navy/10 bg-cream/40">
                 {lessons.map((l) => (
-                  <li key={l.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
+                  <li key={l.id} className="text-sm">
+                    <a
+                      href={`/lessons/${l.id}`}
+                      className="flex items-center justify-between px-4 py-2.5 transition hover:bg-navy/5"
+                    >
                     <span className="text-navy">{l.title}</span>
                     <span
                       className={
@@ -100,6 +102,7 @@ export default async function HomePage() {
                     >
                       {l.scope}
                     </span>
+                    </a>
                   </li>
                 ))}
               </ul>
@@ -107,7 +110,7 @@ export default async function HomePage() {
           </>
         ) : (
           <p className="mt-6 rounded-xl border border-gold/40 bg-gold/10 p-4 text-sm text-navy/70">
-            You&apos;re signed in as <strong>{user.email}</strong>, but no parish is
+            You&apos;re signed in as <strong>{authed.email}</strong>, but no parish is
             assigned to this account yet.
           </p>
         )}

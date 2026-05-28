@@ -5,6 +5,7 @@
 @theme inline {
   --color-burgundy: var(--po-burgundy);
   --color-gold: var(--po-gold);
+  --color-gold-dark: var(--po-gold-dark);
   --color-navy: var(--po-navy);
   --color-cream: var(--po-cream);
   --color-parchment: var(--po-parchment);
@@ -18,6 +19,7 @@
 :root {
   --po-burgundy: #6e1423;
   --po-gold: #c9a84c;
+  --po-gold-dark: #b8963f;
   --po-navy: #2c3347;
   --po-cream: #f5ecd7;
   --po-parchment: #faf8f2;

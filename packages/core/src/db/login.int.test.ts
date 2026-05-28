@@ -21,9 +21,9 @@ describe("lookupAppUser (login_lookup, integration)", () => {
     expect(id?.role).toBe("admin");
   });
 
-  it("resolves a ministry-scoped catechist to teacher + parish", async () => {
+  it("resolves the ministry-scoped catechist to catechist + parish", async () => {
     const id = await lookupAppUser("teacher@parvaordo.test");
-    expect(id?.role).toBe("teacher");
+    expect(id?.role).toBe("catechist");
     expect(id?.parishId).toBe(HOLY_SPIRIT);
   });
 

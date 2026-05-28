@@ -74,8 +74,8 @@ await client.query(
           (CASE u.email
              WHEN 'justinmmiller62@gmail.com' THEN 'admin'
              WHEN 'admin@parvaordo.test'      THEN 'admin'
-             WHEN 'teacher@parvaordo.test'    THEN 'teacher'
-             ELSE 'student' END)::membership_role
+             WHEN 'teacher@parvaordo.test'    THEN 'catechist'
+             ELSE 'catechumen_candidate' END)::membership_role
    FROM users u
    WHERE u.email IN ('justinmmiller62@gmail.com','admin@parvaordo.test','teacher@parvaordo.test','student@parvaordo.test')`,
   [HOLY_SPIRIT],
@@ -92,7 +92,8 @@ await client.query(
 await client.query(
   `INSERT INTO lesson_items (scope, lesson_id, position, kind, content) VALUES
      ('global', $1, 0, 'reading',  '{"html":"<p>One day Jesus asked his disciples, &quot;Who do you say that I am?&quot;</p>"}'),
-     ('global', $1, 1, 'question', '{"prompt":"Who do you say that Jesus is?","format":"open_ended"}')`,
+     ('global', $1, 1, 'question', '{"prompt":"Who do you say that Jesus is?","format":"open_ended"}'),
+     ('global', $1, 2, 'question', '{"prompt":"Which is a profession of faith?","format":"multiple_choice","choices":[{"label":"A teacher only","correct":false},{"label":"The Son of the living God","correct":true},{"label":"A prophet only","correct":false}]}')`,
   [GLOBAL_LESSON],
 );
 

@@ -1,11 +1,10 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { withAuth } from "@workos-inc/authkit-nextjs";
+import { getAuthedUser } from "@/src/lib/auth";
 import { getBrand } from "@/src/lib/brand";
 
 export default async function LoginPage() {
-  const { user } = await withAuth();
-  if (user) redirect("/");
+  if (await getAuthedUser()) redirect("/");
 
   const brand = await getBrand();
 

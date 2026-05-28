@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { afterAll, describe, expect, it } from "vitest";
 import { closeDb } from "./client";
-import { getLessons } from "./repo";
+import { getLessonDetail, getLessons } from "./repo";
 
 const HOLY_SPIRIT = "11111111-1111-1111-1111-111111111111"; // diocese AJ
 const ST_MONICA = "22222222-2222-2222-2222-222222222222"; // diocese AJ
@@ -39,5 +39,17 @@ describe("three-tier content visibility (integration)", () => {
     expect(ids).not.toContain(DIOCESE_LESSON_AJ);
     expect(ids).not.toContain(HS_LESSON);
     expect(ids).not.toContain(SM_LESSON);
+  });
+
+  it("getLessonDetail returns ordered items for a visible lesson", async () => {
+    const lesson = await getLessonDetail(HOLY_SPIRIT, GLOBAL_LESSON);
+    expect(lesson?.items).toHaveLength(3);
+    expect(lesson?.items[0]?.kind).toBe("reading");
+    expect(lesson?.items[1]?.kind).toBe("question");
+    expect(lesson?.items[2]?.kind).toBe("question");
+  });
+
+  it("getLessonDetail hides another parish's lesson (RLS returns null)", async () => {
+    expect(await getLessonDetail(ST_PETER, HS_LESSON)).toBeNull();
   });
 });

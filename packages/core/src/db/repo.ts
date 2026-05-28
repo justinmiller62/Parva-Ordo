@@ -16,6 +16,81 @@ export interface AppIdentity {
   parishId: string | null;
 }
 
+/**
+ * Upsert a student's answer to a question item. parish-scoped (the answering
+ * parish), so RLS isolates answers even when the lesson is global/diocese.
+ * Authorization (who may answer) is the caller's concern; student_id is always
+ * the acting user, so a user can only write their own answer.
+ */
+export async function submitAnswer(params: {
+  parishId: string;
+  studentId: string;
+  itemId: string;
+  text: string;
+}): Promise<void> {
+  await getDb(params.parishId).query(
+    `INSERT INTO answers (parish_id, item_id, student_id, text)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (item_id, student_id)
+     DO UPDATE SET text = EXCLUDED.text, edited_at = now()`,
+    [params.parishId, params.itemId, params.studentId, params.text],
+  );
+}
+
+/** Mark a lesson item complete for a student (idempotent). */
+export async function markItemComplete(params: {
+  parishId: string;
+  studentId: string;
+  itemId: string;
+}): Promise<void> {
+  await getDb(params.parishId).query(
+    `INSERT INTO lesson_item_progress (parish_id, student_id, item_id, completed)
+     VALUES ($1, $2, $3, true)
+     ON CONFLICT (student_id, item_id)
+     DO UPDATE SET completed = true, updated_at = now()`,
+    [params.parishId, params.studentId, params.itemId],
+  );
+}
+
+/** Clear a student's answers + progress (dev/test reset; parish-scoped via RLS). */
+export async function resetStudentProgress(parishId: string, studentId: string): Promise<void> {
+  const db = getDb(parishId);
+  await db.query("DELETE FROM answers WHERE student_id = $1", [studentId]);
+  await db.query("DELETE FROM lesson_item_progress WHERE student_id = $1", [studentId]);
+}
+
+/** The set of lesson_item ids a student has completed within a lesson. */
+export async function getCompletedItems(
+  parishId: string,
+  studentId: string,
+  lessonId: string,
+): Promise<Set<string>> {
+  const { rows } = await getDb(parishId).query<{ item_id: string }>(
+    `SELECT p.item_id
+       FROM lesson_item_progress p
+       JOIN lesson_items li ON li.id = p.item_id
+      WHERE li.lesson_id = $1 AND p.student_id = $2 AND p.completed = true`,
+    [lessonId, studentId],
+  );
+  return new Set(rows.map((r) => r.item_id));
+}
+
+/** A student's saved answers for a lesson, keyed by lesson_item id. */
+export async function getAnswersForLesson(
+  parishId: string,
+  studentId: string,
+  lessonId: string,
+): Promise<Record<string, string>> {
+  const { rows } = await getDb(parishId).query<{ item_id: string; text: string }>(
+    `SELECT a.item_id, a.text
+       FROM answers a
+       JOIN lesson_items li ON li.id = a.item_id
+      WHERE li.lesson_id = $1 AND a.student_id = $2`,
+    [lessonId, studentId],
+  );
+  return Object.fromEntries(rows.map((r) => [r.item_id, r.text]));
+}
+
 export type ContentScope = "global" | "diocese" | "parish";
 
 export interface LessonRow {
@@ -46,6 +121,56 @@ export async function getLessons(parishId: string): Promise<LessonRow[]> {
     lessonOrder: r.lesson_order,
     publishedAt: r.published_at,
   }));
+}
+
+export type LessonItemKind = "reading" | "video" | "question";
+
+export interface LessonItem {
+  id: string;
+  position: number;
+  kind: LessonItemKind;
+  content: Record<string, unknown>;
+}
+
+export interface LessonDetail {
+  id: string;
+  title: string;
+  description: string | null;
+  scope: ContentScope;
+  items: LessonItem[];
+}
+
+/**
+ * A single lesson with its ordered items, if visible to the parish (RLS returns
+ * the lesson only when global / in the parish's diocese / owned by the parish).
+ */
+export async function getLessonDetail(parishId: string, lessonId: string): Promise<LessonDetail | null> {
+  const db = getDb(parishId);
+
+  const { rows: lessonRows } = await db.query<{
+    id: string;
+    title: string;
+    description: string | null;
+    scope: ContentScope;
+  }>("SELECT id, title, description, scope FROM lessons WHERE id = $1", [lessonId]);
+
+  const lesson = lessonRows[0];
+  if (!lesson) return null;
+
+  const { rows: items } = await db.query<{
+    id: string;
+    position: number;
+    kind: LessonItemKind;
+    content: Record<string, unknown>;
+  }>("SELECT id, position, kind, content FROM lesson_items WHERE lesson_id = $1 ORDER BY position", [lessonId]);
+
+  return {
+    id: lesson.id,
+    title: lesson.title,
+    description: lesson.description,
+    scope: lesson.scope,
+    items: items.map((i) => ({ id: i.id, position: i.position, kind: i.kind, content: i.content })),
+  };
 }
 
 /**
