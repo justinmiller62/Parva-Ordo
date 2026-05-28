@@ -24,7 +24,7 @@ export async function advanceAction(formData: FormData): Promise<void> {
     const text = String(formData.get("text") ?? "").trim();
     if (!text) {
       // No answer — bounce back to the same step without completing.
-      redirect(`/lessons/${lessonId}?step=${step}`);
+      redirect(`/ocia/lessons/${lessonId}?step=${step}`);
     }
     await submitAnswer({
       parishId: identity.parishId,
@@ -35,5 +35,5 @@ export async function advanceAction(formData: FormData): Promise<void> {
   }
 
   await markItemComplete({ parishId: identity.parishId, studentId: identity.userId, itemId });
-  redirect(`/lessons/${lessonId}?step=${step + 1}`);
+  redirect(`/ocia/lessons/${lessonId}?step=${step + 1}`);
 }

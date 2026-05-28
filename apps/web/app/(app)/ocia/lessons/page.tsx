@@ -39,7 +39,7 @@ export default async function LessonsPage() {
           {lessons.map((l) => (
             <li key={l.id}>
               <Link
-                href={`/lessons/${l.id}`}
+                href={`/ocia/lessons/${l.id}`}
                 className="flex items-center justify-between px-4 py-3 text-sm transition hover:bg-parchment"
               >
                 <span className="text-navy">{l.title}</span>

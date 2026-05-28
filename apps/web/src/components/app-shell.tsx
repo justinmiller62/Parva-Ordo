@@ -32,7 +32,7 @@ interface NavItem {
 // OCIA module nav (matches Narthex). Only `live` items navigate today; the rest
 // are shown-but-disabled until their module ships.
 const CATECHIST_LINKS: NavItem[] = [
-  { href: "/lessons", label: "Lesson Builder", Icon: BookOpen, live: true },
+  { href: "/ocia/lessons", label: "Lesson Builder", Icon: BookOpen, live: true },
   { label: "Videos", Icon: Film },
   { label: "Calendar", Icon: Calendar },
   { label: "Cohorts", Icon: Users },
@@ -44,7 +44,7 @@ const CATECHIST_LINKS: NavItem[] = [
 ];
 
 const LEARNER_LINKS: NavItem[] = [
-  { href: "/lessons", label: "My Lessons", Icon: BookOpen, live: true },
+  { href: "/ocia/lessons", label: "My Lessons", Icon: BookOpen, live: true },
   { label: "Calendar", Icon: Calendar },
   { label: "Dictionary", Icon: BookOpenCheck },
   { label: "Prayers", Icon: Heart },

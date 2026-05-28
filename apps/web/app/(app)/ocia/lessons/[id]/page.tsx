@@ -58,7 +58,7 @@ export default async function LessonPage({
               Back to dashboard
             </Link>
             {total > 0 ? (
-              <Link href={`/lessons/${id}?step=0`} className={BACK_BTN}>
+              <Link href={`/ocia/lessons/${id}?step=0`} className={BACK_BTN}>
                 Review
               </Link>
             ) : null}
@@ -137,7 +137,7 @@ export default async function LessonPage({
 
   const backEl =
     current > 0 ? (
-      <Link href={`/lessons/${id}?step=${current - 1}`} className={BACK_BTN} data-testid="wizard-back">
+      <Link href={`/ocia/lessons/${id}?step=${current - 1}`} className={BACK_BTN} data-testid="wizard-back">
         <ArrowLeft className="h-4 w-4" />
         Back
       </Link>
@@ -147,7 +147,7 @@ export default async function LessonPage({
 
   return (
     <main className="mx-auto max-w-3xl px-5 py-8">
-      <Link href="/lessons" className="text-sm text-gray-400 hover:text-navy">
+      <Link href="/ocia/lessons" className="text-sm text-gray-400 hover:text-navy">
         ← Lessons
       </Link>
 
@@ -188,7 +188,7 @@ export default async function LessonPage({
           {body}
           <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4">
             {backEl}
-            <Link href={`/lessons/${id}?step=${current + 1}`} className={PRIMARY_BTN} data-testid="wizard-next">
+            <Link href={`/ocia/lessons/${id}?step=${current + 1}`} className={PRIMARY_BTN} data-testid="wizard-next">
               Continue
               <ArrowRight className="h-4 w-4" />
             </Link>
