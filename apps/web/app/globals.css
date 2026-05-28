@@ -1,4 +1,7 @@
 @import "tailwindcss";
+/* Tailwind auto-scans app/, but not src/ — register it so component classes
+   (e.g. the app shell / sidebar) are generated. */
+@source "../src";
 
 /* Map Tailwind theme colors onto the runtime brand variables, so utilities like
    `bg-burgundy` / `text-cream` resolve through the per-parish/diocese cascade. */

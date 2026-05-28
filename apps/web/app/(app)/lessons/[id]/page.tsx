@@ -1,13 +1,8 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
-import {
-  getAnswersForLesson,
-  getCompletedItems,
-  getLessonDetail,
-  lookupAppUser,
-} from "@parvaordo/core";
-import { getAuthedUser } from "@/src/lib/auth";
+import { getAnswersForLesson, getCompletedItems, getLessonDetail } from "@parvaordo/core";
+import { getViewer } from "@/src/lib/viewer";
 import { advanceAction } from "./actions";
 
 const CARD = "rounded-lg border border-gray-200 bg-white p-6";
@@ -25,10 +20,9 @@ export default async function LessonPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ step?: string }>;
 }) {
-  const authed = await getAuthedUser();
-  if (!authed) redirect("/login");
-
-  const identity = await lookupAppUser(authed.email);
+  const viewer = await getViewer();
+  if (!viewer) redirect("/login");
+  const identity = viewer.identity;
   if (!identity?.parishId) redirect("/");
 
   const { id } = await params;
@@ -153,7 +147,7 @@ export default async function LessonPage({
 
   return (
     <main className="mx-auto max-w-3xl px-5 py-8">
-      <Link href="/" className="text-sm text-gray-400 hover:text-navy">
+      <Link href="/lessons" className="text-sm text-gray-400 hover:text-navy">
         ← Lessons
       </Link>
 

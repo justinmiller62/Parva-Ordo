@@ -56,6 +56,7 @@ test("dev bypass: cannot skip ahead past the first incomplete item", async ({ pa
   await page.request.get("/dev/reset?email=teacher@parvaordo.test");
   await page.goto("/dev/login?email=teacher@parvaordo.test");
   await page.getByRole("link", { name: /Who Do You Say That I Am/ }).click();
+  await page.waitForURL(/\/lessons\/[0-9a-f-]+$/); // let the navigation settle before reading the URL
   const lessonPath = new URL(page.url()).pathname;
   await page.goto(`${lessonPath}?step=2`); // tamper — should clamp to the first incomplete step
   await expect(page.getByTestId("wizard-step-current")).toHaveText("1");
