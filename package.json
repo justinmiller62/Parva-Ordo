@@ -1,0 +1,30 @@
+{
+  "name": "parva-ordo",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Parva Ordo — the little order. A parish operating system.",
+  "packageManager": "pnpm@11.3.0",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:int": "vitest run --config vitest.int.config.ts",
+    "test:e2e": "pnpm --filter @parvaordo/web test:e2e",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:migrate": "node infra/db/migrate.mjs",
+    "db:seed": "node infra/db/seed.mjs",
+    "db:reset": "docker compose down -v && docker compose up -d && node infra/db/migrate.mjs && node infra/db/seed.mjs"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.7",
+    "pg": "^8.13.1",
+    "prettier": "^3.8.3",
+    "turbo": "^2.5.0",
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.9"
+  }
+}

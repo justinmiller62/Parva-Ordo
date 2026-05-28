@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+/* Map Tailwind theme colors onto the runtime brand variables, so utilities like
+   `bg-burgundy` / `text-cream` resolve through the per-parish/diocese cascade. */
+@theme inline {
+  --color-burgundy: var(--po-burgundy);
+  --color-gold: var(--po-gold);
+  --color-navy: var(--po-navy);
+  --color-cream: var(--po-cream);
+  --color-parchment: var(--po-parchment);
+  --color-rose: var(--po-rose);
+  --font-heading: var(--po-font-heading);
+  --font-body: var(--po-font-body);
+}
+
+/* Parva Ordo default brand. The root layout overrides these --po-* values per
+   request from resolveBrand(host); everything downstream reads the variables. */
+:root {
+  --po-burgundy: #6e1423;
+  --po-gold: #c9a84c;
+  --po-navy: #2c3347;
+  --po-cream: #f5ecd7;
+  --po-parchment: #faf8f2;
+  --po-rose: #8b2942;
+  --po-font-heading: "Cinzel", Georgia, serif;
+  --po-font-body: "Inter", system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--po-parchment);
+  color: var(--po-navy);
+  font-family: var(--po-font-body);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--po-font-heading);
+}

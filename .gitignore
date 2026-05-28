@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# next
+.next/
+out/
+next-env.d.ts
+
+# turbo
+.turbo/
+
+# build output
+dist/
+build/
+
+# env
+.env
+.env*.local
+.dev.vars
+
+# misc
+.DS_Store
+*.log
+coverage/
